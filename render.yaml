@@ -1,0 +1,19 @@
+# Render Blueprint (https://render.com/docs/blueprint-spec)
+# Deploy: push this repo to GitHub, then on Render choose
+# "New +" -> "Blueprint" and point it at the repo. Render reads this file
+# and provisions the service automatically.
+#
+# NOTE on persistence: this uses Render's free web service tier, which has
+# an EPHEMERAL filesystem -- the SQLite file is lost on every redeploy or
+# when the free instance spins down from inactivity and restarts. That's
+# fine for demoing the API/UI live, but see README.md "Persistence on a
+# free hosting tier" for how to attach a persistent disk (paid plan) or
+# swap in managed Postgres for real persistence.
+services:
+  - type: web
+    name: transaction-ranking-service
+    runtime: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
