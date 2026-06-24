@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ledger &mdash; Transaction &amp; Ranking Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+
+  <header class="tape">
+    <div class="tape__head">
+      <span class="eyebrow">LEDGER&nbsp;NO.&nbsp;001</span>
+      <h1>Transaction &amp; Ranking Service</h1>
+      <span class="eyebrow tape__status" id="connStatus">checking service&hellip;</span>
+    </div>
+    <div class="tape__feed" id="tapeFeed" aria-live="polite">
+      <div class="tape__entry tape__entry--placeholder">No entries yet &mdash; submit a transaction below to start the tape.</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid-2">
+
+      <!-- New entry / deposit slip -->
+      <div class="card slip">
+        <div class="card__head">
+          <span class="eyebrow">01 &mdash; NEW ENTRY</span>
+          <h2>Record a transaction</h2>
+        </div>
+
+        <form id="txnForm" novalidate>
+          <label class="field">
+            <span>User ID</span>
+            <input type="text" id="f_user_id" name="user_id" placeholder="e.g. priya_k" autocomplete="off" required />
+          </label>
+
+          <label class="field">
+            <span>Amount (&#8377;)</span>
+            <input type="number" id="f_amount" name="amount" placeholder="0.00" step="0.01" min="0.01" required />
+          </label>
+
+          <label class="field">
+            <span>Description <em>(optional)</em></span>
+            <input type="text" id="f_description" name="description" placeholder="e.g. order #4521" />
+          </label>
+
+          <label class="field">
+            <span>Idempotency key</span>
+            <div class="field__row">
+              <input type="text" id="f_idem_key" name="idempotency_key" placeholder="auto-generated" required />
+              <button type="button" class="btn btn--ghost" id="regenKeyBtn" title="Generate a fresh key">new&nbsp;key</button>
+            </div>
+          </label>
+
+          <div class="actions">
+            <button type="submit" class="btn btn--primary" id="submitBtn">Post transaction</button>
+          </div>
+        </form>
+
+        <div class="demo-row">
+          <span class="eyebrow">TRY IT</span>
+          <button type="button" class="btn btn--small" id="repeatBtn">Resend last request (same key)</button>
+          <button type="button" class="btn btn--small" id="burstBtn">Fire 8 requests fast</button>
+        </div>
+
+        <div id="txnResult" class="result" aria-live="polite"></div>
+      </div>
+
+      <!-- Account lookup -->
+      <div class="card">
+        <div class="card__head">
+          <span class="eyebrow">02 &mdash; ACCOUNT LOOKUP</span>
+          <h2>Check a user's standing</h2>
+        </div>
+
+        <form id="summaryForm" novalidate>
+          <label class="field">
+            <span>User ID</span>
+            <div class="field__row">
+              <input type="text" id="s_user_id" name="user_id" placeholder="e.g. priya_k" autocomplete="off" required />
+              <button type="submit" class="btn btn--primary">Look up</button>
+            </div>
+          </label>
+        </form>
+
+        <div id="summaryResult" class="summary" aria-live="polite">
+          <p class="muted">No lookup yet. Enter a user ID above.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Leaderboard -->
+    <section class="card leaderboard">
+      <div class="card__head leaderboard__head">
+        <div>
+          <span class="eyebrow">03 &mdash; STANDINGS</span>
+          <h2>Leaderboard</h2>
+          <p class="muted small">Ranked by score &mdash; volume (diminishing returns) plus active-day consistency. See README for the formula.</p>
+        </div>
+        <button type="button" class="btn btn--small" id="refreshRankingBtn">Refresh</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="ledger-table" id="rankingTable">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>User</th>
+              <th>Score</th>
+              <th>Total amount</th>
+              <th>Transactions</th>
+              <th>Active days</th>
+            </tr>
+          </thead>
+          <tbody id="rankingBody">
+            <tr><td colspan="6" class="muted">Loading&hellip;</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="footnote">
+      <p>Demo UI for <code>POST /transaction</code>, <code>GET /summary/:userId</code>, <code>GET /ranking</code>. API docs at <a href="/docs">/docs</a>.</p>
+    </footer>
+  </main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
